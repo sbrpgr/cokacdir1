@@ -34,7 +34,7 @@ hex = "0.4"
 hmac = "0.12"
 md-5 = "0.10"
 thiserror = "1"
-russh = "0.62.5"
+russh = { version = "0.62.7", default-features = false, features = ["flate2", "aws-lc-rs"] }
 russh-sftp = "2.0"
 async-trait = "0.1"
 ratatui-image = { version = "11.1.0", default-features = false, features = ["image-defaults", "crossterm"] }

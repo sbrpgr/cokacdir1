@@ -7643,7 +7643,7 @@ async fn handle_file_upload(
 
     // Download file from Telegram via HTTP
     shared_rate_limit_wait(state, chat_id).await;
-    let file = tg!("get_file", bot.get_file(&file_id).await)?;
+    let file = tg!("get_file", bot.get_file(file_id.clone()).await)?;
     let base = {
         let data = state.lock().await;
         data.api_base_url.clone()

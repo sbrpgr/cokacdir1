@@ -2078,7 +2078,7 @@ fn is_newer_version(latest: &str, current: &str) -> bool {
     false
 }
 
-fn run_app<B: ratatui::backend::Backend>(
+fn run_app<B: ratatui::backend::Backend<Error = io::Error>>(
     terminal: &mut Terminal<B>,
     app: &mut App,
 ) -> io::Result<()> {
