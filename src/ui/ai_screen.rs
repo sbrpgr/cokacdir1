@@ -2427,27 +2427,21 @@ mod tests {
             println!("Row {}: |{}|", y, row.trim_end());
         }
 
-        // With whitespace-only lines taking 2 rows:
-        // Line 0: Row 0 (1 row)
-        // Line 1 (spaces): Row 1-2 (2 rows)
-        // Line 2: Row 3 (1 row)
-        // Line 3 (spaces): Row 4-5 (2 rows)
-        // Line 4: Row 6 (1 row)
-        // Total: 7 rows
-        let mut row6 = String::new();
-        for x in 0..width {
-            let cell = buffer.cell((x, 6)).unwrap();
-            row6.push_str(cell.symbol());
+        // Ratatui 0.30 preserves each short whitespace-only line as one row.
+        // Check every row so blank lines cannot be silently collapsed or doubled.
+        for (y, expected) in ["Line 1", "", "Line 3", "", "Line 5", ""].iter().enumerate() {
+            let row: String = (0..width)
+                .map(|x| buffer.cell((x, y as u16)).unwrap().symbol())
+                .collect();
+            assert_eq!(row.trim_end(), *expected, "unexpected content at row {y}");
         }
-        assert!(row6.contains("Line 5"),
-            "Line 5 should be at Row 6 (whitespace-only lines take 2 rows). Got: '{}'", row6.trim());
 
         // Verify Paragraph::line_count matches
         let line_count_total = Paragraph::new(lines.clone())
             .wrap(Wrap { trim: false })
             .line_count(width) as usize;
         println!("Paragraph::line_count: {}", line_count_total);
-        assert_eq!(line_count_total, 7, "line_count should be 7 (3 normal + 2*2 whitespace)");
+        assert_eq!(line_count_total, 5, "line_count must match the five rendered rows");
     }
 
     #[test]

@@ -11,7 +11,7 @@ keywords = ["terminal", "cli", "file-manager", "multi-panel", "tui", "ai"]
 categories = ["command-line-utilities", "filesystem"]
 
 [dependencies]
-ratatui = { version = "0.28", features = ["unstable-rendered-line-info"] }
+ratatui = { version = "0.30.2", default-features = false, features = ["crossterm_0_28", "layout-cache", "underline-color", "unstable-rendered-line-info"] }
 crossterm = "0.28"
 tokio = { version = "1", features = ["rt-multi-thread", "sync", "time", "process", "io-util", "macros", "net"] }
 serde = { version = "1", features = ["derive"] }
@@ -34,14 +34,13 @@ hex = "0.4"
 hmac = "0.12"
 md-5 = "0.10"
 thiserror = "1"
-russh = "0.46"
+russh = { version = "0.62.7", default-features = false, features = ["flate2", "aws-lc-rs"] }
 russh-sftp = "2.0"
-russh-keys = "0.46"
 async-trait = "0.1"
-ratatui-image = { version = "2.0", default-features = false, features = ["rustix", "image-defaults", "crossterm"] }
-teloxide = { version = "0.13", default-features = false, features = ["macros", "rustls", "ctrlc_handler"] }
+ratatui-image = { version = "11.1.0", default-features = false, features = ["image-defaults", "crossterm"] }
+teloxide = { version = "0.17", default-features = false, features = ["macros", "rustls", "ctrlc_handler"] }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
-serenity = { version = "0.12", default-features = false, features = ["client", "gateway", "http", "model", "builder", "cache", "rustls_backend"] }
+serenity = { version = "0.12", default-features = false, features = ["client", "gateway", "http", "model", "builder", "cache", "native_tls_backend"] }
 slack-morphism = { version = "2", features = ["hyper"] }
 fs2 = "0.4"
 filetime = "0.2"

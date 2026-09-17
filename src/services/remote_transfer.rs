@@ -110,20 +110,28 @@ impl SshExec {
                     let key_path = expand_tilde(path);
 
                     let key_pair = if let Some(pass) = passphrase {
-                        russh_keys::load_secret_key(&key_path, Some(pass))
+                        russh::keys::load_secret_key(&key_path, Some(pass))
                             .map_err(|e| format!("Failed to load key: {}", e))?
                     } else {
-                        russh_keys::load_secret_key(&key_path, None)
+                        russh::keys::load_secret_key(&key_path, None)
                             .map_err(|e| format!("Failed to load key: {}", e))?
                     };
 
-                    ssh.authenticate_publickey(&profile.user, Arc::new(key_pair))
+                    ssh.authenticate_publickey(
+                    &profile.user,
+                    russh::keys::PrivateKeyWithHashAlg::new(
+                        Arc::new(key_pair),
+                        ssh.best_supported_rsa_hash().await
+                            .map_err(|e| format!("RSA algorithm negotiation failed: {}", e))?
+                            .flatten(),
+                    ),
+                )
                         .await
                         .map_err(|e| format!("Key auth failed: {}", e))?
                 }
             };
 
-            if !auth_result {
+            if !auth_result.success() {
                 return Err("Authentication rejected by server".to_string());
             }
 

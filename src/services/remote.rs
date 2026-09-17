@@ -200,13 +200,12 @@ impl std::fmt::Debug for RemoteContext {
 /// SSH client handler for russh
 pub(crate) struct SshHandler;
 
-#[async_trait::async_trait]
 impl client::Handler for SshHandler {
     type Error = russh::Error;
 
     async fn check_server_key(
         &mut self,
-        _server_public_key: &key::PublicKey,
+        _server_public_key: &PublicKey,
     ) -> Result<bool, Self::Error> {
         // Accept all server keys (like ssh -o StrictHostKeyChecking=no)
         // In a production app, you'd verify against known_hosts
@@ -271,20 +270,28 @@ impl SftpSession {
                 let key_path = expand_tilde(path);
 
                 let key_pair = if let Some(pass) = passphrase {
-                    russh_keys::load_secret_key(&key_path, Some(pass))
+                    russh::keys::load_secret_key(&key_path, Some(pass))
                         .map_err(|e| format!("Failed to load key: {}", e))?
                 } else {
-                    russh_keys::load_secret_key(&key_path, None)
+                    russh::keys::load_secret_key(&key_path, None)
                         .map_err(|e| format!("Failed to load key: {}", e))?
                 };
 
-                ssh.authenticate_publickey(&profile.user, Arc::new(key_pair))
+                ssh.authenticate_publickey(
+                    &profile.user,
+                    russh::keys::PrivateKeyWithHashAlg::new(
+                        Arc::new(key_pair),
+                        ssh.best_supported_rsa_hash().await
+                            .map_err(|e| format!("RSA algorithm negotiation failed: {}", e))?
+                            .flatten(),
+                    ),
+                )
                     .await
                     .map_err(|e| format!("Key auth failed: {}", e))?
             }
         };
 
-        if !auth_result {
+        if !auth_result.success() {
             return Err("Authentication rejected by server".to_string());
         }
 
