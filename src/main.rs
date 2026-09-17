@@ -1927,15 +1927,10 @@ fn main() -> io::Result<()> {
     terminal.clear()?;
 
     // Detect terminal image protocol (must be after alternate screen, before event loop)
-    let picker = {
-        #[cfg(unix)]
-        let mut p = ratatui_image::picker::Picker::from_termios()
-            .unwrap_or_else(|_| ratatui_image::picker::Picker::new((8, 16)));
-        #[cfg(not(unix))]
-        let mut p = ratatui_image::picker::Picker::new((8, 16));
-        p.guess_protocol();
-        p
-    };
+    let picker = ratatui_image::picker::Picker::from_query_stdio()
+        .unwrap_or_else(|_| ratatui_image::picker::Picker::from_fontsize(
+            ratatui_image::FontSize { width: 8, height: 16 },
+        ));
 
     // Load settings and create app state
     let (settings, settings_error) = match config::Settings::load_with_error() {
@@ -2147,7 +2142,7 @@ fn run_app<B: ratatui::backend::Backend>(
                 // Create inline protocol when loading completes
                 if was_loading && !state.is_loading && state.image.is_some() {
                     if let Some(ref mut picker) = app.image_picker {
-                        if picker.protocol_type != ratatui_image::picker::ProtocolType::Halfblocks {
+                        if picker.protocol_type() != ratatui_image::picker::ProtocolType::Halfblocks {
                             let img = state.image.as_ref().expect("checked above").clone();
                             state.inline_protocol = Some(picker.new_resize_protocol(img));
                             state.use_inline = true;

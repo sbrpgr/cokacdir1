@@ -76,7 +76,7 @@ pub struct ImageViewerState {
     /// Receiver for async image loading result
     receiver: Option<Receiver<ImageLoadResult>>,
     /// Inline image protocol state (Kitty/iTerm2/Sixel)
-    pub inline_protocol: Option<Box<dyn StatefulProtocol>>,
+    pub inline_protocol: Option<StatefulProtocol>,
     /// Whether using inline image protocol (vs halfblocks)
     pub use_inline: bool,
 }
@@ -364,7 +364,7 @@ pub fn draw(frame: &mut Frame, app: &mut App, area: Rect, theme: &Theme) {
     let position_info = state.get_position_info();
     let use_inline = state.use_inline;
     let img_dimensions = state.image.as_ref().map(|img| (img.width(), img.height()));
-    let font_size = app.image_picker.as_ref().map(|p| p.font_size);
+    let font_size = app.image_picker.as_ref().map(|p| (p.font_size().width, p.font_size().height));
     let title = if let Some(ref img) = state.image {
         if use_inline {
             // Inline protocol: no zoom info
@@ -453,7 +453,7 @@ pub fn draw(frame: &mut Frame, app: &mut App, area: Rect, theme: &Theme) {
             } else {
                 inner
             };
-            let image_widget = ratatui_image::StatefulImage::new(None);
+            let image_widget = ratatui_image::StatefulImage::new();
             frame.render_stateful_widget(image_widget, render_area, protocol);
         } else if let Some(ref img) = state.image {
             // Halfblock fallback rendering (existing code)

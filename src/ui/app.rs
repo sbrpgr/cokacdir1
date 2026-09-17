@@ -2118,7 +2118,7 @@ impl App {
                     // Skip true color check if inline image protocol is available
                     let has_inline = self.image_picker
                         .as_ref()
-                        .map(|p| p.protocol_type != ratatui_image::picker::ProtocolType::Halfblocks)
+                        .map(|p| p.protocol_type() != ratatui_image::picker::ProtocolType::Halfblocks)
                         .unwrap_or(false);
                     if !has_inline && !crate::ui::image_viewer::supports_true_color() {
                         self.pending_large_image = Some(path);
@@ -2988,7 +2988,7 @@ impl App {
                     // Skip true color check if inline image protocol is available
                     let has_inline = self.image_picker
                         .as_ref()
-                        .map(|p| p.protocol_type != ratatui_image::picker::ProtocolType::Halfblocks)
+                        .map(|p| p.protocol_type() != ratatui_image::picker::ProtocolType::Halfblocks)
                         .unwrap_or(false);
                     if !has_inline && !crate::ui::image_viewer::supports_true_color() {
                         self.pending_large_image = Some(path);
